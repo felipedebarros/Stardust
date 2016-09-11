@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections.Generic;
 
 [RequireComponent( typeof( Rigidbody2D ) )]
@@ -6,21 +7,27 @@ public class Boid : MonoBehaviour {
 
     Rigidbody2D rb;
     Vector3 nextVelocity = Vector3.up; //DoubleBuffer
+    private BoidBehaviour behaviour;
     public List<Boid> nearBoids { get; private set; }
-    public int flockID = 0;
+    private int flockID;
+    [SerializeField]
+    private Text idText;
 
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        idText.text = "0";
     }
 
-    void Update()
+    public int getFlockID() { return flockID; }
+    public void setFlockId(int value)
     {
-        Color w = Color.white * flockID / 20;
-        w.a = 1f;
-        GetComponent<SpriteRenderer>().color = w;
+        if (value == flockID) return;
+        behaviour.RemoveFromFlock(this, flockID);
+        flockID = value;
+        behaviour.AddToFlock(this, value);
+        idText.text = flockID.ToString();
     }
-
     public Vector3 getVelocity() { return rb.velocity; }
     public void setVelocity(Vector3 vel) { nextVelocity = vel; }
     public void UpdateVelocity() { rb.velocity = nextVelocity; }
@@ -31,4 +38,5 @@ public class Boid : MonoBehaviour {
         float angle = Vector3.Angle(Vector3.up, rb.velocity);
         transform.localEulerAngles = angle * -Vector3.forward;
     }
+    public void setBehaviour(BoidBehaviour b) { behaviour = b; }
 }
